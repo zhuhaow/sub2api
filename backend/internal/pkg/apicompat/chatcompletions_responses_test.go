@@ -180,7 +180,30 @@ func TestChatCompletionsToResponses_ResponseFormat(t *testing.T) {
 	resp, err := ChatCompletionsToResponses(req)
 	require.NoError(t, err)
 	require.NotNil(t, resp.Text)
-	assert.JSONEq(t, string(req.ResponseFormat), string(resp.Text.Format))
+
+	var format map[string]any
+	require.NoError(t, json.Unmarshal(resp.Text.Format, &format))
+	assert.Equal(t, "json_schema", format["type"])
+	assert.Equal(t, "weather", format["name"])
+	assert.Equal(t, true, format["strict"])
+
+	schema, ok := format["schema"].(map[string]any)
+	require.True(t, ok)
+	assert.Equal(t, "object", schema["type"])
+}
+
+func TestChatCompletionsToResponses_ResponseFormatJSONObject(t *testing.T) {
+	req := &ChatCompletionsRequest{
+		Model: "gpt-4o",
+		Messages: []ChatMessage{
+			{Role: "user", Content: json.RawMessage(`"Return JSON"`)}},
+		ResponseFormat: json.RawMessage(`{"type":"json_object"}`),
+	}
+
+	resp, err := ChatCompletionsToResponses(req)
+	require.NoError(t, err)
+	require.NotNil(t, resp.Text)
+	assert.JSONEq(t, `{"type":"json_object"}`, string(resp.Text.Format))
 }
 
 func TestChatCompletionsToResponses_ImageURL(t *testing.T) {
