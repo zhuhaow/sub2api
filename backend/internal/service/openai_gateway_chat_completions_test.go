@@ -74,8 +74,9 @@ func TestOpenAIGatewayService_ForwardAsChatCompletions_APIKeyPreservesStructured
 	require.NotNil(t, result)
 	require.Equal(t, "https://api.openai.com/v1/responses", upstream.lastReq.URL.String())
 	require.Equal(t, "json_schema", gjson.GetBytes(upstream.lastBody, "text.format.type").String())
-	require.Equal(t, "weather", gjson.GetBytes(upstream.lastBody, "text.format.json_schema.name").String())
-	require.True(t, gjson.GetBytes(upstream.lastBody, "text.format.json_schema.strict").Bool())
+	require.Equal(t, "weather", gjson.GetBytes(upstream.lastBody, "text.format.name").String())
+	require.True(t, gjson.GetBytes(upstream.lastBody, "text.format.strict").Bool())
+	require.Equal(t, "object", gjson.GetBytes(upstream.lastBody, "text.format.schema.type").String())
 }
 
 func TestOpenAIGatewayService_ForwardAsChatCompletions_OAuthPreservesStructuredOutput(t *testing.T) {
@@ -139,6 +140,7 @@ func TestOpenAIGatewayService_ForwardAsChatCompletions_OAuthPreservesStructuredO
 	require.NotNil(t, result)
 	require.Equal(t, chatgptCodexURL, upstream.lastReq.URL.String())
 	require.Equal(t, "json_schema", gjson.GetBytes(upstream.lastBody, "text.format.type").String())
-	require.Equal(t, "weather", gjson.GetBytes(upstream.lastBody, "text.format.json_schema.name").String())
-	require.True(t, gjson.GetBytes(upstream.lastBody, "text.format.json_schema.strict").Bool())
+	require.Equal(t, "weather", gjson.GetBytes(upstream.lastBody, "text.format.name").String())
+	require.True(t, gjson.GetBytes(upstream.lastBody, "text.format.strict").Bool())
+	require.Equal(t, "object", gjson.GetBytes(upstream.lastBody, "text.format.schema.type").String())
 }
