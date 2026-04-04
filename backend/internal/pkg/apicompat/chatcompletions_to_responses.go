@@ -63,6 +63,13 @@ func ChatCompletionsToResponses(req *ChatCompletionsRequest) (*ResponsesRequest,
 		}
 	}
 
+	// Chat Completions structured outputs use response_format; Responses uses
+	// text.format. Preserve the raw schema payload so Zod/json_schema requests
+	// survive the compatibility conversion unchanged.
+	if len(req.ResponseFormat) > 0 {
+		out.Text = &ResponsesText{Format: req.ResponseFormat}
+	}
+
 	// tools[] and legacy functions[] → ResponsesTool[]
 	if len(req.Tools) > 0 || len(req.Functions) > 0 {
 		out.Tools = convertChatToolsToResponses(req.Tools, req.Functions)

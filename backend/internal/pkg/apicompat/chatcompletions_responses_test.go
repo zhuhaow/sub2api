@@ -157,6 +157,32 @@ func TestChatCompletionsToResponses_ReasoningEffort(t *testing.T) {
 	assert.Equal(t, "auto", resp.Reasoning.Summary)
 }
 
+func TestChatCompletionsToResponses_ResponseFormat(t *testing.T) {
+	req := &ChatCompletionsRequest{
+		Model: "gpt-4o",
+		Messages: []ChatMessage{
+			{Role: "user", Content: json.RawMessage(`"Return structured data"`)}},
+		ResponseFormat: json.RawMessage(`{
+			"type":"json_schema",
+			"json_schema":{
+				"name":"weather",
+				"strict":true,
+				"schema":{
+					"type":"object",
+					"properties":{"city":{"type":"string"}},
+					"required":["city"],
+					"additionalProperties":false
+				}
+			}
+		}`),
+	}
+
+	resp, err := ChatCompletionsToResponses(req)
+	require.NoError(t, err)
+	require.NotNil(t, resp.Text)
+	assert.JSONEq(t, string(req.ResponseFormat), string(resp.Text.Format))
+}
+
 func TestChatCompletionsToResponses_ImageURL(t *testing.T) {
 	content := `[{"type":"text","text":"Describe this"},{"type":"image_url","image_url":{"url":"data:image/png;base64,abc123"}}]`
 	req := &ChatCompletionsRequest{
