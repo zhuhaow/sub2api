@@ -16,7 +16,6 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-<<<<<<< HEAD
 func TestNormalizeResponsesRequestServiceTier(t *testing.T) {
 	t.Parallel()
 
